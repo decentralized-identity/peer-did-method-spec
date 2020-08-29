@@ -169,6 +169,8 @@ did:peer:1zQmZMygzYqNwU6Uhmewx5Xepf2VLp5S4HLSwwgf2aiKZuwa
         capture group 1, <code>transform</code> in capture group 2, and <code>encnumbasis</code> in capture group 3.
     </p>
 
+    <p>Note that peer DIDs can also be used in DID URIs, with query parameters. Currently, the only query parameter formally defined for peer DIDs is <code>initial-state</code>, discussed <a target="#initial-state">below</a>. However, other parameters may be used by a given implementation, so recipients of a peer DID URI should at least be prepared to parse the DID into its base DID value and its query string portion (which begins with the <code>?</code> character. All query parameter values in peer DID URIs are base64url encoded.</p>
+
     <p>A few peer DID values are reserved and convey special meaning. See <a href="#reserved-values">Reserved Values</a>
         in the appendix.
     </p>
