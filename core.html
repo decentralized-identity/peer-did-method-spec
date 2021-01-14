@@ -84,7 +84,7 @@ encnumbasis = 46*BASE58BTC
 <section class="normative">
     <h2>Generation Method</h2>
 
-    <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated in one of the following two ways:</p>
+    <p>The unique <em>numeric basis</em> underlying a Peer DID MUST be generated in one of the following ways:</p>
 
     <h3>Method 0: inception key without doc</h3>
     <p>If <code>numalgo</code> == <code>0</code>, a single keypair is chosen, having all possible privileges with respect
@@ -137,6 +137,25 @@ encnumbasis = 46*BASE58BTC
         is susceptible to attacks early in the DID's lifecycle. See <a target="_blank"
             href="https://github.com/openssi/peer-did-method-spec/issues/112">this github issue</a> for more discussion.
     </p>
+	
+    <h3>Method 3: multiple inception key without doc</h3>
+    <p>If <code>numalgo</code> == <code>3</code>, the generation mode is similar to Method 0 (and therefore also did:key)
+	with the ability to specify additional keys in the generated DID Document. This method is necessary when both an encryption
+	key and a signing key are required.</p>
+	<ul>
+		<li>Construct a peer:did as described in Method 0 with the desired encryption public key.</li>
+		<li>Construct a multibase encoded, multicodec-encoded form of the desired singing public key.</>
+		<li>Append the encoded signing key to the original DID using a pipe character `|` as a delimiter.</li>
+	</ul>
+	
+	<p>Example:
+		Encoded Encryption Key: z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH
+		Encoded Signing Key: zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY
+		Method 3 peer DID: did:peer:3z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH|zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY
+	
+    </p>	
+	
+	
 </section>
 
 <section class="informative">
