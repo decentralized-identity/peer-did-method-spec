@@ -35,7 +35,7 @@
     <p>The peer DID scheme is defined by the following ABNF (see [[RFC5234]] for syntax):</p>
     <pre class="example" class="ABNF" title="ABNF for peer DIDs">
 peer-did = "did:peer:" numalgo transform encnumbasis
-numalgo = "0" / "1"
+numalgo = "0" / "1" / "2"
 transform = "z"
 encnumbasis = 46*BASE58BTC
     </pre>
@@ -138,42 +138,44 @@ encnumbasis = 46*BASE58BTC
             href="https://github.com/openssi/peer-did-method-spec/issues/112">this github issue</a> for more discussion.
     </p>
 	
-    <h3>Method 3: multiple inception key without doc</h3>
-    <p>If <code>numalgo</code> == <code>3</code>, the generation mode is similar to Method 0 (and therefore also did:key)
+    <h3>Method 2: multiple inception key without doc</h3>
+    <p>If <code>numalgo</code> == <code>2</code>, the generation mode is similar to Method 0 (and therefore also did:key)
 	with the ability to specify additional keys in the generated DID Document. This method is necessary when both an encryption
 	key and a signing key are required.</p>
 	<ul>
-		<li>Construct a peer:did as described in Method 0 with the desired encryption public key.</li>
-		<li>Construct a multibase encoded, multicodec-encoded form of the desired signing public key.</>
-		<li>Append the encoded signing key to the original DID using a period character `.` as a delimiter.</li>
+		<li>Start with the did prefix <pre>did:peer:2</pre></li>
+		<li>Construct a multibase encoded, multicodec-encoded form of each public key to be included.</li>
+		<li>Prefix each encoded key with a single character from the purpose codes table below.</li>
+		<li>Append the encoded key to the DID using a period character `.` as a delimiter between keys if more than one.</li>
+	</ul>
+	
+	<p>Purpose Code List</p>
+	<ul>
+		<li><b>A</b> - Key Agreement</li>
+		<li><b>V</b> - Verification</li>
 	</ul>
 
 	<pre class="example nohighlight" title="Example Multi-key Peer DID" id="multi-key-creation">
-		Encoded Encryption Key: z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH
-		Encoded Signing Key: zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY
-		Method 3 peer DID: did:peer:3z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY
+		Encoded Encryption Key: Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH
+		Encoded Signing Key: VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY
+		Method 3 peer DID: did:peer:2Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY
     </pre>	
 	
-	<p>When Resolving the peer DID into a DID Document, the process is similar to Method 0.</p>
+	<p>When Resolving the peer DID into a DID Document, the process is reversed.</p>
 	<ul>
-		<li>Resolve the document as described in Method 0, using the portion of the DID prior to the delimiter.</li>
-		<li>Decode the key after the delimiter, and insert it into the PublicKey array, using this key as the id fragment.</li>
-		<li>Set the authentication key to the new id fragment created in the last step.</li>
+		<li>Split the DID string into keys.</li>
+		<li>Extract key purpose and decode each key.</li>
+		<li>Insert each key into the document according to the designated purpose.</li>
 	</ul>
 
 	<pre class="example" title="Example Multi-key Peer DID" id="multi-key-creation">
 {
   "@context": "https://w3id.org/did/v1",
-  "id": "did:peer:3z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
-  "publicKey": [{
-	"id": "did:peer:3z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
-	"type": "Ed25519VerificationKey2018",
-	"controller": "did:peer:3z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
-	"publicKeyBase58": "B12NYF8RrR3h41TDCTJojY59usg3mbtbjnFs7Eud1Y6u"
-  },{
-	"id": "did:peer:3z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH#zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
+  "id": "did:peer:3Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
+  "authentication": [{
+	"id": "did:peer:3Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
 	"type": "JsonWebKey2020",
-	"controller": "did:peer:3z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
+	"controller": "did:peer:3Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
 	"publicKeyJwk": {
 		"kty": "EC",
 		"crv": "P-256",
@@ -181,14 +183,10 @@ encnumbasis = 46*BASE58BTC
 		"y": "nDQW6XZ7b_u2Sy9slofYLlG03sOEoug3I0aAPQ0exs4"
     }
   }],
-  "authentication": [ "did:peer:3z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH#zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH" ],
-  "assertionMethod": [ "did:peer:3z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH" ],
-  "capabilityDelegation": [ "did:peer:3z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH" ],
-  "capabilityInvocation": [ "did:peer:3z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH#z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH" ],
   "keyAgreement": [{
-	"id": "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH#zBzoR5sqFgi6q3iFia8JPNfENCpi7RNSTKF7XNXX96SBY4",
+	"id": "did:peer:3Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
 	"type": "X25519KeyAgreementKey2019",
-	"controller": "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
+	"controller": "did:peer:3Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
 	"publicKeyBase58": "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr"
   }]
 }
