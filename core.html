@@ -142,40 +142,59 @@ encnumbasis = 46*BASE58BTC
     <p>If <code>numalgo</code> == <code>2</code>, the generation mode is similar to Method 0 (and therefore also did:key)
 	with the ability to specify additional keys in the generated DID Document. This method is necessary when both an encryption
 	key and a signing key are required.</p>
+	
+	    <pre class="example" class="ABNF" title="ABNF for peer DIDs">
+peer-did-method-2 = "did:peer:2" 1*elment 
+element = "." ( purposecode transform encnumbasis / service )
+purposecode = "A" / "V" / "S"
+keypurpose = 
+transform = "z"
+encnumbasis = 46*BASE58BTC
+service = "S" servicetype "|" uri "|" *keyvalue
+    </pre>
+	
 	<ul>
 		<li>Start with the did prefix <pre>did:peer:2</pre></li>
 		<li>Construct a multibase encoded, multicodec-encoded form of each public key to be included.</li>
-		<li>Prefix each encoded key with a single character from the purpose codes table below.</li>
-		<li>Append the encoded key to the DID using a period character `.` as a delimiter between keys if more than one.</li>
+		<li>Prefix each encoded key with a period character (.) and single character from the purpose codes table below.</li>
+		<li>Append the encoded key to the DID.</li>
+		<li>Encode and append a service type if desired.</li>
 	</ul>
 	
 	<p>Purpose Code List</p>
 	<ul>
-		<li><b>A</b> - Key Agreement</li>
+		<li><b>A</b> - Assertion</li>
+		<li><b>E</b> - Encryption (Key Agreement)</li>
 		<li><b>V</b> - Verification</li>
+		<li><b>I</b> - Capability Invocation</li>
+		<li><b>D</b> - Verification Delegation</li>
+		<li><b>S</b> - Service</li>
 	</ul>
 
 	<pre class="example nohighlight" title="Example Multi-key Peer DID" id="multi-key-creation">
-		Encoded Encryption Key: Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH
-		Encoded Signing Key: VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY
-		Method 3 peer DID: did:peer:2Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY
+		Encoded Encryption Key: .Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH
+		Encoded Signing Key: .VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY
+		Service Endpoint: S.didcommmessaging|https://example.com/endpoint|routingKeys=["did:example:somemediator#somekey"]
+		Method 3 peer DID: did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.S.didcommmessaging|https://example.com/endpoint|routingKeys=["did:example:somemediator#somekey"]
     </pre>	
+	
+	
 	
 	<p>When Resolving the peer DID into a DID Document, the process is reversed.</p>
 	<ul>
-		<li>Split the DID string into keys.</li>
-		<li>Extract key purpose and decode each key.</li>
-		<li>Insert each key into the document according to the designated purpose.</li>
+		<li>Split the DID string into element.</li>
+		<li>Extract element purpose and decode each key or service.</li>
+		<li>Insert each key or service into the document according to the designated purpose.</li>
 	</ul>
 
 	<pre class="example" title="Example Multi-key Peer DID" id="multi-key-creation">
 {
   "@context": "https://w3id.org/did/v1",
-  "id": "did:peer:3Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
+  "id": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.S.didcommmessaging|https://example.com/endpoint|routingKeys=["did:example:somemediator#somekey"]",
   "authentication": [{
-	"id": "did:peer:3Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
+	"id": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#Vz6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
 	"type": "JsonWebKey2020",
-	"controller": "did:peer:3Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
+	"controller": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
 	"publicKeyJwk": {
 		"kty": "EC",
 		"crv": "P-256",
@@ -184,10 +203,16 @@ encnumbasis = 46*BASE58BTC
     }
   }],
   "keyAgreement": [{
-	"id": "did:peer:3Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
+	"id": "did:peer:3.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#EzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
 	"type": "X25519KeyAgreementKey2019",
-	"controller": "did:peer:3Az6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
+	"controller": "did:peer:3.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
 	"publicKeyBase58": "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr"
+  }],
+  "service": [{
+    "id": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.S.didcommmessaging|https://example.com/endpoint|routingKeys=["did:example:somemediator#somekey"]#didcommmessaging",
+    "type": "didcommmessaging",
+    "serviceEndpoint": "https://example.com/endpoint",
+    "routingKeys": ["did:example:somemediator#somekey"]
   }]
 }
 	</pre>		
