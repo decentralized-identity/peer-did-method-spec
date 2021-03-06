@@ -146,11 +146,11 @@ encnumbasis = 46*BASE58BTC
 	    <pre class="example" class="ABNF" title="ABNF for peer DIDs">
 peer-did-method-2 = "did:peer:2" 1*elment 
 element = "." ( purposecode transform encnumbasis / service )
-purposecode = "A" / "V" / "S"
+purposecode = "A" / "E" / "V" / "I" / "D" / "S" 
 keypurpose = 
 transform = "z"
 encnumbasis = 46*BASE58BTC
-service = "S" servicetype "|" uri "|" *keyvalue
+service = "S" 1*B64URL
     </pre>
 	
 	<ul>
@@ -158,8 +158,35 @@ service = "S" servicetype "|" uri "|" *keyvalue
 		<li>Construct a multibase encoded, multicodec-encoded form of each public key to be included.</li>
 		<li>Prefix each encoded key with a period character (.) and single character from the purpose codes table below.</li>
 		<li>Append the encoded key to the DID.</li>
-		<li>Encode and append a service type if desired.</li>
+		<li>Encode and append a service type if desired as described below.</li>
 	</ul>
+	<p>Service encoding</p>
+	<ul>
+		<li>Start with the JSON structure for your service.</li>
+		<li>Replace common strings in key names and type value with appreviations from the abbreviations table below.</li>
+		<li>Convert to string, and remove unnecessary whitespace, such as spaces and newlines.</li>
+		<li>Base64URL Encode String</li>
+		<li>Add the period (.) and S (for the service) </li>
+	</ul>
+	
+	<p>Service decoding</p>
+	<ul>
+		<li>Remove the period (.) and S prefix</li>
+		<li>Base64URL Decode String</li>
+		<li>Parse as JSON.</li>
+		<li>Replace abbreviations in key names and type value with common names from the abbreviations table below.</li>
+		<li>Add id attribute according to the form <pre><did>#service<type></li>
+	</ul>
+	
+	<p>Common String Abbreviations</p>
+	<table>
+		<tr><th>Common String</th><th>Abbreviation</th></tr>
+		<tr><td>type</td><td>t</td></tr>
+		<tr><td>didcommmessaging</td><td>dm</td></tr>
+		<tr><td>serviceEndpoint</td><td>s</td></tr>
+		<tr><td>routingKeys</td><td>r</td></tr>
+	</table>
+	
 	
 	<p>Purpose Code List</p>
 	<ul>
@@ -174,10 +201,17 @@ service = "S" servicetype "|" uri "|" *keyvalue
 	<pre class="example nohighlight" title="Example Multi-key Peer DID" id="multi-key-creation">
 		Encoded Encryption Key: .Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH
 		Encoded Signing Key: .VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY
-		Service Endpoint: S.didcommmessaging|https://example.com/endpoint|routingKeys=["did:example:somemediator#somekey"]
-		Method 3 peer DID: did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.S.didcommmessaging|https://example.com/endpoint|routingKeys=["did:example:somemediator#somekey"]
+		Service Block:
+		{
+			"type": "didcommmessaging",
+			"serviceEndpoint": "https://example.com/endpoint",
+			"routingKeys": ["did:example:somemediator#somekey"]
+		}
+		Service Block, after whitespace removal and common word substitution:
+		{"t":"dm","s":"https://example.com/endpoint","r":["did:example:somemediator#somekey"]}
+		Encoded Service Endpoint: .SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=
+		Method 3 peer DID: did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=
     </pre>	
-	
 	
 	
 	<p>When Resolving the peer DID into a DID Document, the process is reversed.</p>
@@ -190,11 +224,11 @@ service = "S" servicetype "|" uri "|" *keyvalue
 	<pre class="example" title="Example Multi-key Peer DID" id="multi-key-creation">
 {
   "@context": "https://w3id.org/did/v1",
-  "id": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.S.didcommmessaging|https://example.com/endpoint|routingKeys=["did:example:somemediator#somekey"]",
+  "id": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=",
   "authentication": [{
-	"id": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#Vz6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
+	"id": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=#Vz6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
 	"type": "JsonWebKey2020",
-	"controller": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
+	"controller": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=",
 	"publicKeyJwk": {
 		"kty": "EC",
 		"crv": "P-256",
@@ -203,13 +237,13 @@ service = "S" servicetype "|" uri "|" *keyvalue
     }
   }],
   "keyAgreement": [{
-	"id": "did:peer:3.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY#EzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
+	"id": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=#EzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
 	"type": "X25519KeyAgreementKey2019",
-	"controller": "did:peer:3.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
+	"controller": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=",
 	"publicKeyBase58": "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr"
   }],
   "service": [{
-    "id": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.S.didcommmessaging|https://example.com/endpoint|routingKeys=["did:example:somemediator#somekey"]#didcommmessaging",
+    "id": "did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=#didcommmessaging",
     "type": "didcommmessaging",
     "serviceEndpoint": "https://example.com/endpoint",
     "routingKeys": ["did:example:somemediator#somekey"]
