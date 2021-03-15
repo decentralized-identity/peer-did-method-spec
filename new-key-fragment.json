@@ -1,5 +1,5 @@
 {
-  "publicKey": [
+  "verificationMethod": [
     {
       "id": "Mv6gmMNa",
       "type": "Ed25519VerificationKey2018",
