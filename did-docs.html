@@ -105,7 +105,7 @@
         <li>Deleting an item is accomplished by adding its <code>id</code> to a <dfn>deletion list</dfn>. This list
             is a root property of the <a>stored variant</a> of a DID doc and is named <code>deleted</code>. It is
             suppressed when generating a <a>resolved variant</a> of the DID doc, so it is only visible in the deltas
-            of <a>backing storage</a>. See <a href="#deleting-a-publickey">this clarifying example</a>.</li>
+            of <a>backing storage</a>. See <a href="#deleting-a-verificationMethod">this clarifying example</a>.</li>
         <li>When any party encounters two versions of a peer DID doc that are mututally incompatible, an impartial,
             ungameable resolution algorithm is used to restore harmony. See <a href="#conflict-resolution">Conflict
             Resolution</a> in the appendix for details.
@@ -115,9 +115,9 @@
 </section>
 
 <section>
-    <h2><code><dfn>publicKey</dfn></code></h2>
+    <h2><code><dfn>verificationMethod</dfn></code></h2>
 
-    <p>The <code>publicKey</code> section of a peer DID document, in either stored or resolved form, is as you would
+    <p>The <code>verificationMethod</code> section of a peer DID document, in either stored or resolved form, is as you would
         expect from a reading of the <a target="didspec" href="https://w3c-ccg.github.io/did-spec/#authentication">DID
         spec</a>. Peer DID docs MUST define all of their internal and external keys in this section; although the DID
         spec permits inline definitions in the <code>authentication</code> and <code>authorization</code> sections of a
@@ -148,10 +148,10 @@
             mediator</a> keys that have the <a>route</a> privilege.
     </p>
 
-    <pre class="example" title="A publicKey section">
+    <pre class="example" title="A verificationMethod section">
 {
   ...
-  "publicKey": [
+  "verificationMethod": [
     {
       "id": "H3C2AVvL",
       "type": "Ed25519VerificationKey2018",
@@ -179,7 +179,7 @@
     </p>
 
     <section>
-        <h3 id="adding-a-publickey">Adding a key</h3>
+        <h3 id="adding-a-verificationMethod">Adding a key</h3>
 
         <p>To add a new key with <code>id</code> = <code>Mv6gmMNa</code> to a peer DID doc, you might create
         a <a>change fragment</a> of the DID doc that looks like this:
@@ -187,7 +187,7 @@
 
         <pre class="example" title="Change fragment that adds a new key">
 {
-    "publicKey": [
+    "verificationMethod": [
         {
           "id": "Mv6gmMNa",
           "type": "Ed25519VerificationKey2018",
@@ -200,7 +200,7 @@
         </pre>
 
         <p>Change fragments only show where something is <em>appended</em> to either normal lists or the <a>deletion
-            list</a>. Here, the single entries under <code>publicKey</code> and <code>authorization.profiles</code> are
+            list</a>. Here, the single entries under <code>verificationMethod/code> and <code>authorization.profiles</code> are
             additions, not replacements, to the lists that already contain values. (The <a>trust profile</a> embodied in
             the <code>authorization.profiles</code> associates the new key with privileges. This must be done at creation
             time. It is discussed under <a href="#authorization"><code>authorization</code></a>.) The <a>delta</a> that
@@ -219,12 +219,12 @@
     </section>
 
     <section>
-        <h3 id="deleting-a-publickey">Deleting a key</h3>
+        <h3 id="deleting-a-verificationMethod">Deleting a key</h3>
 
         <p>Any key can be deleted by appending its <code>id</code> to the <code>deleted</code> list at the root of
-            the <a>stored variant</a> of a peer DID doc, and by removing its corresponding entry from the <code>publicKey</code>
+            the <a>stored variant</a> of a peer DID doc, and by removing its corresponding entry from the <code>verificationMethod</code>
             section. Only the append-to-<code>deleted</code> operation needs to be represented in the <a>change
-            fragment</a>; the corresponding removal from the <code>publicKey</code> section is implied. For example, to
+            fragment</a>; the corresponding removal from the <code>verificationMethod</code> section is implied. For example, to
             delete a key with <code>id</code> = <code>izfrNTmQ</code>, your <a>change fragment</a> would look like
             this:
         </p>
@@ -280,7 +280,7 @@
         </p>
         <pre class="example" title="Change fragment that adds a new key with authentication privileges">
 {
-    "publicKey": [
+    "verificationMethod": [
         {
           "id": "Mv6gmMNa",
           "type": "Ed25519VerificationKey2018",
@@ -428,14 +428,14 @@
                 </p></dd>
 
             <dt><dfn>key_admin</dfn></dt>
-            <dd>The holder of this privilege can add or remove other keys from a peer DID doc's <a href="#publickey">
-                <code>publicKey</code> section</a>, <a href="#authentication"><code>authentication</code> section</a>,
+            <dd>The holder of this privilege can add or remove other keys from a peer DID doc's <a href="#verificationMethod">
+                <code>verificationMethod</code> section</a>, <a href="#authentication"><code>authentication</code> section</a>,
                 or <code>authorization.profiles</code> list. Typically this privilege is held only by very privileged
                 keys, or by combinations of keys, to prevent hackers who co-opt one device from adding new, malicious
-                keys to the inventory. 
-                To guard against privilege escalation, it is important to enforce that entity 
-                adding the new key can only add grant privileges (add <code>roles</code>) that it itself has. 
-                Also note that a key can remove itself from <a href="#publickey"><code>publicKey</code> section</a>, 
+                keys to the inventory.
+                To guard against privilege escalation, it is important to enforce that entity
+                adding the new key can only add grant privileges (add <code>roles</code>) that it itself has.
+                Also note that a key can remove itself from <a href="#verificationMethod"><code>verificationMethod</code> section</a>,
                 it does not need the <code>key_admin</code> privilege. A real example would be when an existing device with a
                 key in the DID doc gets damaged and the identity owner has no plans to replace it.
             </dd>
@@ -455,8 +455,8 @@
                 key throughout a DID doc, with a new key definition and references, in a single delete-and-add
                 operation. If key #2 has this privilege and exercises it, the result is that key #2 is revoked from
                 the doc, but a new key (perhaps key #7) appears with exactly the same profile. This privilege is
-                assumed to be held by all keys unless rules specify otherwise. The construct <code>revoke-implicit</code> 
-                is used to prevent keys from having implicit privileges. The example below shows that the key id 
+                assumed to be held by all keys unless rules specify otherwise. The construct <code>revoke-implicit</code>
+                is used to prevent keys from having implicit privileges. The example below shows that the key id
                 <code>#H3C2AVvL</code> is unable to replace its associated key definition.
             </dd>
             <pre class="example" title="Preventing keys from having implicit privileges">

@@ -109,8 +109,8 @@ encnumbasis = 46*BASE58BTC
             DID doc data, as opposed to the <dfn>resolved variant</dfn> that would have an actual DID value in the root
             <code>id</code> property. (In either the stored or resolved variant of the doc, anywhere else that the DID
             value would appear, it should appear as a relative reference rather than an absolute value. For example,
-            each<code>controller</code> property of a <a href="#publickey">publicKey that is owned by this DID would say
-                <code>"controller": "#id"</code></a>.)
+            each<code>controller</code> property of a <a href="#verificationMethod">verificationMethod that is owned by
+            this DID would say <code>"controller": "#id"</code></a>.)
         </li>
         <li>Calculate the SHA256 [[!RFC4634]] hash of the bytes of the <a>stored variant</a> of the <a>genesis
             version</a> of the DID doc, and make this value the new DID's <a>numeric basis</a>.
