@@ -144,7 +144,7 @@ encnumbasis = 46*BASE58BTC
 	key and a signing key are required.</p>
 	
 	    <pre class="example" class="ABNF" title="ABNF for peer DIDs">
-peer-did-method-2 = "did:peer:2" 1*elment 
+peer-did-method-2 = "did:peer:2" 1*element 
 element = "." ( purposecode transform encnumbasis / service )
 purposecode = "A" / "E" / "V" / "I" / "D" / "S" 
 keypurpose = 
@@ -263,7 +263,7 @@ service = "S" 1*B64URL
 did:peer:1zQmZMygzYqNwU6Uhmewx5Xepf2VLp5S4HLSwwgf2aiKZuwa
     </pre>
 
-    <p>Peer DIDs consist entirely of printable ASCII characters and in this version of the spec are exactly 57
+    <p>Peer DIDs consist entirely of printable ASCII characters and in this version of the spec are exactly 57 or 58
         characters long. They have no whitespace, and the only punctuation they use is the <code>:</code> character. When
         rendering in columns with a constrained width, they could be hyphenated one or more times as needed; the hyphens
         would not be confused with meaningful delimiters, and the final character of the DID would be easy to find.
@@ -276,7 +276,7 @@ did:peer:1zQmZMygzYqNwU6Uhmewx5Xepf2VLp5S4HLSwwgf2aiKZuwa
     <p>A convenient regex to match <code>peer</code> DIDs is:</p>
 
     <pre class="example nohighlight" title="Matching regex" id="matching-regex">
-^did:peer:[01](z)([1-9a-km-zA-HJ-NP-Z]{46,47})$)$
+^did:peer:[01](z)([1-9a-km-zA-HJ-NP-Z]{46,47})$
     </pre>
 
     <p>A match against this regex places <code>numalgo</code> (the algorithm for choosing a numeric basis) in
