@@ -115,6 +115,37 @@
 </section>
 
 <section>
+    <h2><code>initial-state</code></h2>
+    <p>
+        Sometimes it is useful (or even required) to communicate a doc-capable peer DID value
+        (one with <code>numalgo</code> != 0) and its genesis or evolved DID doc as a single
+        combined value, instead of sharing the DID as one piece of data, and its DID doc and
+        deltas as another. This situation commonly occurs in connection protocols that are
+        built on <a target="_blank" href="https://identity.foundation/didcomm-messaging/docs/spec/">
+        DIDComm messaging</a>, for example: <var>A</var> wants to share with <var>B</var> the new
+        pairwise DID they've allocated (A.did@A:B), plus the DID's full DID doc (A.diddoc@A:B),
+        and DIDComm requires all information about the sender to be passed in a single
+        <code>from</code> field.
+    </p>
+    <p>
+        The way to do this is to use the <code>initial-state</code> query parameter of a peer
+        DID URL. All implementations of peer DIDs are required to recognize the meaning of this
+        query parameter, though only implementations that support deltas (layer 2 or 3) need to
+        process it. The parameter value can be extracted from a peer DID URL with the following
+        regex:
+    </p>
+    <pre class="example nohighlight" title="Regex to extract initial-state" id="initial-state-regex">
+^did:peer:[^0].+[?](.*&)?initial-state=([^&]*)(?:&|$)
+    </pre>
+    <p>
+        This places the value of the <code>initial-state</code> parameter in capture group 1.
+    </p>
+    <p>To interpret the parameter value, it must first be base64url (minus padding) decoded. The
+        result MUST be a JSON array containing zero or more deltas. An empty parameter value is
+        also allowed, and is considered equivalent to an empty JSON array.</p>
+</section>
+
+<section>
     <h2><code><dfn>verificationMethod</dfn></code></h2>
 
     <p>The <code>verificationMethod</code> section of a peer DID document, in either stored or resolved form, is as you would
