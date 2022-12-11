@@ -154,33 +154,16 @@ var respecConfig = {
 <body>
 
 <section id='abstract'>
-    <p style="color:red">Editor's note, September 2022: This DID method works. There are reasonable, tested
-        libraries for it in
-        <a href="https://github.com/sicpa-dlab/peer-did-python">python</a> and
-        <a href="https://github.com/sicpa-dlab/peer-did-jvm">java</a>. It is convenient to use with
-        <a href="https://https://identity.foundation/didcomm-messaging/spec/">DIDComm v2</a>. It is in active use
-        within the Hyperledger Aries community, among other places, and has gravitas and momentum there. However, it is
-        not required when using DIDComm, and since peer DIDs were described, some methods with partly overlapping
-        functionality have become more popular. In addition, the method predates the formal DID standard
-        by almost two years; when the DID spec became a TR, it became desirable to update a couple details here
-        that were out of alignment. That work hasn't been done.
-    </p>
-    <p style="color:red">We are not formally deprecating the method. It represents an important milestone in
-        our explorations of what is possible with DIDs, and it still delivers value. However, we want people to be
-        aware that new work may be better focused on alternative methods. If you care about endpoints, sophisticated
-        delegation, multisig, and key rotation, we recommend getting the features of peer DIDs wth
-        <a href="https://weboftrust.github.io/ietf-did-keri/draft-pfeairheller-did-keri.html">did:keri</a>. If
-        you don't care about endpoints at all, and you don't plan to rotate keys, then
-        <a href="https://w3c-ccg.github.io/did-method-key/">did:key</a> may be a good choice.
-        Or you can continue to use this method. It's not going away; it just won't get a lot of attention going
-        forward.
-    </p>
     <p>This document defines a "peer" <a href="https://w3c-ccg.github.io/did-spec/#specific-did-method-schemes"
         target="didspec">DID Method</a> that conforms to the <a href="https://w3c-ccg.github.io/did-spec/"
         target="didspec">DID Spec</a>. The method can be used independent of any central source of truth, and is
         intended to be cheap, fast, scalable, and secure. It is suitable for most private relationships between people,
         organizations, and things. We expect that peer-to-peer relationships in every blockchain ecosystem can benefit
         by offloading pairwise and n-wise relationships to peer DIDs.</p>
+    <p>There are reasonable, tested did:peer libraries for
+      <a href="https://github.com/sicpa-dlab/peer-did-python">python</a> and
+      <a href="https://github.com/sicpa-dlab/peer-did-jvm">java</a>. It is convenient to use with
+      <a href="https://https://identity.foundation/didcomm-messaging/spec/">DIDComm v2</a>.</p>
 </section>
 
 <section id='sotd'>
