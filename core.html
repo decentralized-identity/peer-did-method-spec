@@ -293,19 +293,19 @@ peer-did-method-3 = "did:peer:3" 64*HEXDIG
             <ul>
                 <li>Start with the DID generated using Method 2.</li>
                 <li>Take the SHA-256 hash of the generated DID (excluding the "did:peer:2" prefix).</li>
-                <li>Encode the hash using lowercase hexadecimal encoding.</li>
-                <li>Construct the final Method 3 DID by concatenating the prefix "did:peer:3" with the hex-encoded hash.
+                <li>Encode the hash using the base58btc multibase encoding.</li>
+                <li>Construct the final Method 3 DID by concatenating the prefix "did:peer:3" with the encoded hash.
                 </li>
             </ul>
             <p>For example, if the Method 2 DID is:</p>
             <pre>did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0</pre>
             <p>First, remove the prefix "did:peer:2":</p>
-            <pre>Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0</pre>
-            <p>Take the SHA-256 hash of the remaining string, and convert the hash to lowercase hexadecimal encoding:
+            <pre>.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0</pre>
+            <p>Take the SHA-256 hash of the remaining string and represent as a multi-base encoded(base58btc) string:
             </p>
-            <pre>0e857e93798921e83cfc2ef8bee9cafc25f15f4c9c7bee5ed9a9c62b56a62cca</pre>
-            <p>Finally, concatenate the prefix "did:peer:3" with the hex-encoded hash:</p>
-            <pre>did:peer:30e857e93798921e83cfc2ef8bee9cafc25f15f4c9c7bee5ed9a9c62b56a62cca</pre>
+            <pre>zkCcB8dBX5MiWD29vMgM7fPTY6hVkT6ZTnKqYqaAtftNG8yDPfNmQLvDvYwzfQqyq5rdK</pre>
+            <p>Finally, concatenate the prefix "did:peer:3" with the computed and encoded hash:</p>
+            <pre>did:peer:3zkCcB8dBX5MiWD29vMgM7fPTY6hVkT6ZTnKqYqaAtftNG8yDPfNmQLvDvYwzfQqyq5rdK</pre>
 </section>
 
 <section class="informative">
