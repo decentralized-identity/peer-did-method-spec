@@ -303,11 +303,11 @@ encnumbasis = 46*BASE58BTC
             <pre>did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0</pre>
             <p>First, remove the prefix "did:peer:2":</p>
             <pre>.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0</pre>
-            <p>Take the SHA-256 hash of the remaining string and represent as a multi-base encoded(base58btc) string:
+            <p>Take the SHA-256 hash of the remaining string and represent as a multi-hash, multi-base encoded(base58btc) string:
             </p>
-            <pre>zkCcB8dBX5MiWD29vMgM7fPTY6hVkT6ZTnKqYqaAtftNG8yDPfNmQLvDvYwzfQqyq5rdK</pre>
+            <pre>zQmS19jtYDvGtKVrJhQnRFpBQAx3pJ9omx2HpNrcXFuRCz9</pre>
             <p>Finally, concatenate the prefix "did:peer:3" with the computed and encoded hash:</p>
-            <pre>did:peer:3zkCcB8dBX5MiWD29vMgM7fPTY6hVkT6ZTnKqYqaAtftNG8yDPfNmQLvDvYwzfQqyq5rdK</pre>
+            <pre>did:peer:zQmS19jtYDvGtKVrJhQnRFpBQAx3pJ9omx2HpNrcXFuRCz9</pre>
 </section>
 
 <section class="informative">
