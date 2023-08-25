@@ -328,10 +328,10 @@ did:peer:1zQmZMygzYqNwU6Uhmewx5Xepf2VLp5S4HLSwwgf2aiKZuwa
 
     <p><code>peer</code> DIDs implement the following CRUD (Create, Read, Update, and Delete) operations:</p>
     <ul>
-        <li>Create: A <code>peer</code> DID is created by <code>numalog</code> as defined in the <a href="#generation-methods">Generation Methods</a> section of this specification. Once created, the DIDs are shared by the party creating the DID with anyone they want to have and use the DID.</li>
+        <li>Create: A <code>peer</code> DID is created by <code>numalgo</code> as defined in the <a href="#generation-methods">Generation Methods</a> section of this specification. Once created, the DIDs are shared by the party creating the DID with anyone they want to have and use the DID.</li>
         <li>Read: Those holding <code>peer</code> DIDs store them locally and "resolve" them by looking up their DIDDoc by the <code>peer</code> DID identifier string. In <a href="https://identity.foundation/didcomm-messaging/spec/v2.0/">DIDComm</a>, agents may index the DIDs by the keys within the DIDs and look up DIDs via their keys. As noted earlier, <code>peer</code> DIDs are not resolvable by anyone other than those that have received the DIDs.</li>
         <li>Update: <code>peer</code> DIDs cannot be updated. Implementations such as <a href="https://identity.foundation/didcomm-messaging/spec/v2.0/">DIDComm</a> use DID Rotation instead of updating the contents of the DIDDoc when necessasry.</li>
-        <li>Delete: <code>peer</code> DIDs are deleted by those holding the DIDs. When a party is no longer interested in participating in the capabilities enabled by the sharing of the DIDs, they can simply delete their local copy, with ot without notifying other parties using the <code>peer</code>.</li>
+        <li>Delete: <code>peer</code> DIDs are deleted by those holding the DIDs. When a party is no longer interested in participating in the capabilities enabled by the sharing of the DIDs, they can simply delete their local copy, without without notifying other parties using the <code>peer</code>.</li>
     </ul>
 
 </section>
