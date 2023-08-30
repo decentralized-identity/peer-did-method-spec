@@ -29,13 +29,6 @@
         <dt>The values of DIDs are securely random.</dt>
         <dd>This prevents attackers from discovering patterns in DIDs that might undermine privacy.
         </dd>
-        <dt>Parties to a relationship can prove the orderly and authorized evolution of their
-            keys to one another, in an unbroken chain of custody stretching back to the moment of inception.</dt>
-        <dd>DIDs cannot be registered with any peer or any <a href="#grafting">grafting</a> ledger contrary to the
-            wishes of the DID controller(s). A peer DID can be shared out of context (e.g., observed and recorded by
-            an eavesdropper) -- but any reputable party will not accept a registration unless it's authorized by
-            a key with the <a>register</a> privilege.</dd>
-    </dl>
 </section>
 
 <section class="informative">
@@ -51,8 +44,8 @@
         authorization section of a DID doc, and rejecting mischief from hackers.
     </p>
     <p>However, in a peer relationship, there IS no centralized authority. This leads to an interesting
-        inversion of responsibility that must be understood: Bob enforces Alice's <a href="#authorization">
-            authorization policy</a>, and Alice enforces Bob's.
+        inversion of responsibility that must be understood: Bob enforces Alice's
+            authorization policy, and Alice enforces Bob's.
     </p>
     <p>This might seem wrong&mdash;shouldn't Alice enforce her own security? But it is quite rational. Who cares
         whether the agents he is dealing with truly belong to Alice and are authorized by her? Bob does.
@@ -98,11 +91,8 @@
     <p>Keys used to control peer DIDs, or keys authorized to communicate and update the DID docs
         for peer DIDs, should be managed according to best practices for DKMS, as described in
         <a target="aries" href="https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0051-dkms/dkms-v4.md">
-        the DKMS spec</a>. See the <a href="#static-and-key-rotation">note about key rotation and static-DID-only
-        support</a> in the <a href="#impl">Implementation section</a>.
+        the DKMS spec</a>.
     </p>
-    <p><a target="sgl" href="https://evernym.github.io/sgl/docs/reference.html#rules">SGL rules</a> are powerful and
-        flexible, and should be used to implement best practices.</p>
 </section>
 
 <section>
@@ -211,18 +201,5 @@
         they are holding in the did:peer DIDDoc for the connection. If they
         do not match it is possible there has been a MITM attack and the
         connection is suspect.
-    </p>
-    <p>
-        Note: In the current (as of July 2019) implementation of Hyperledger
-        Indy, a self-attested claim in a presentation is not signed, and as
-        such, this approach is not foolproof. As the probability of this attack
-        is extremely low, and the signing of self-attested claims will soon be
-        added to Indy to align with with the (hopefully) soon-to-be-accepted W3C
-        verifiable presentation standard, this is deemed a low priority update
-        to the current version of Indy. The priority of the change may be
-        increased if the practical likelihood of this attack is found to be
-        significant. With the verifiable credential presentations model still in
-        flux, other verifiable credential implementations may or may not have
-        comparable issues.
     </p>
 </section>

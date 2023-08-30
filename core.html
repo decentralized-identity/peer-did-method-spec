@@ -14,19 +14,12 @@
 <section class="normative">
     <h2>Target System(s)</h2>
 
-    <p>This DID method applies to any identity management implementation that meets the following two
-        requirements:</p>
+    <p>This DID method applies to any identity management implementation that meets the following 
+        requirement:</p>
     <ul>
         <li><em>Generation Algorithm</em> &mdash; The DIDs are created using the <a href="#method-specific-identifier">
                 algorithm described below</a>, endowing them with properties vital to trust between peers without
             incurring a dependency on a central source of truth.
-        </li>
-        <li>
-            <em>Protocol</em> &mdash; The metadata for DIDs (what would be stored in an on-chain DID doc in other
-            methods)
-            is communicated and maintained as described in the <a href="#protocols">Protocols</a> section. (This
-            requirement may be partly irrelevant if support for peer DIDs targets static DID docs only. See
-            <a href="#layers-of-support">Layers of Support</a>.)
         </li>
     </ul>
 </section>
@@ -102,10 +95,7 @@ encnumbasis = 46*BASE58BTC
         functionally equivalent to a did:key value, and visually similar, except that a peer DID will have the numeric
         algorithm as a prefix, before the multibase encoded, multicodec-encoded public key. For example,
         <code>did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH</code> is equivalent to
-        <code>did:peer:<span style="color:blue">0</span>z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH</code>. The
-        did:peer version differs
-        in that it is upgradeable to a dynamically updatable DID with full DID doc and endpoints, simply using deltas,
-        as long as the first delta is authenticated by the inception key.
+        <code>did:peer:<span style="color:blue">0</span>z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH</code>.
     </p>
 
     <h3>Method 1: genesis doc</h3>
@@ -130,12 +120,6 @@ encnumbasis = 46*BASE58BTC
     <p>By hashing the stored variant, we avoid the circular problem of including the DID in the data that's being
         hashed. This means that a peer DID doc must be resolved by converting a <a>stored variant</a> of DID doc
         data into a <a>resolved variant</a> by inserting the value of the DID being resolved.</p>
-    <p>By deriving the numeric basis of the DID from the <a>genesis version</a> of the DID doc, the DID can begin its
-        lifecycle with any number of keys and endpoints, including protective M-of-N policies. The <a>inception key</a>
-        is the part of the genesis state that's true bedrock; all other information is optional and can be thought of
-        as a sort of <em>pre-rotation</em> or<em>pre-evolution</em>, initiated by the inception key, to a more complex
-        state.
-    </p>
     <p>
         The root of trust for peer DIDs is the entropy in the <a>inception key</a>. The inception key MUST be new for
         each DID; it MUST NOT ever be reused--and it must be the case that anyone observing the public half of the
@@ -313,9 +297,6 @@ encnumbasis = 46*BASE58BTC
 <section class="informative">
     <h2>Recognizing and handling peer DIDs</h2>
 
-    <p>Correctly recognizing and handling peer DIDs as strings is a <a>Layer 1</a> feature.
-        A valid <code>peer</code> DID might be:</p>
-
     <pre class="example nohighlight" title="A typical peer DID" id="typical-did">
 did:peer:1zQmZMygzYqNwU6Uhmewx5Xepf2VLp5S4HLSwwgf2aiKZuwa
     </pre>
@@ -340,8 +321,18 @@ did:peer:1zQmZMygzYqNwU6Uhmewx5Xepf2VLp5S4HLSwwgf2aiKZuwa
     <p>A match against this regex places <code>numalgo</code> (the algorithm for choosing a numeric basis) in
         capture group 1, <code>transform</code> in capture group 2, and <code>encnumbasis</code> in capture group 3.
     </p>
-
-    <p>A few peer DID values are reserved and convey special meaning. See <a href="#reserved-values">Reserved Values</a>
-        in the appendix.
-    </p>
 </section>
+
+<section class="normative">
+    <h2>CRUD Operations</h2>
+
+    <p><code>peer</code> DIDs implement the following CRUD (Create, Read, Update, and Delete) operations:</p>
+    <ul>
+        <li>Create: A <code>peer</code> DID is created by <code>numalgo</code> as defined in the <a href="#generation-methods">Generation Methods</a> section of this specification. Once created, the DIDs are shared by the party creating the DID with anyone they want to have and use the DID.</li>
+        <li>Read: Those holding <code>peer</code> DIDs store them locally and "resolve" them by looking up their DIDDoc by the <code>peer</code> DID identifier string. In <a href="https://identity.foundation/didcomm-messaging/spec/v2.0/">DIDComm</a>, agents may index the DIDs by the keys within the DIDs and look up DIDs via their keys. As noted earlier, <code>peer</code> DIDs are not resolvable by anyone other than those that have received the DIDs.</li>
+        <li>Update: <code>peer</code> DIDs cannot be updated. Implementations such as <a href="https://identity.foundation/didcomm-messaging/spec/v2.0/">DIDComm</a> use DID Rotation instead of updating the contents of the DIDDoc when necessasry.</li>
+        <li>Delete: <code>peer</code> DIDs are deleted by those holding the DIDs. When a party is no longer interested in participating in the capabilities enabled by the sharing of the DIDs, they can simply delete their local copy, without without notifying other parties using the <code>peer</code>.</li>
+    </ul>
+
+</section>
+
