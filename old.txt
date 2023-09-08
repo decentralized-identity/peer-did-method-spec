@@ -1,0 +1,400 @@
+Peer DID Method Specification
+blockchain-independent decentralized identifiers
+W3C Document 30 August 2023
+Latest editor's draft:
+https://identity.foundation/peer-did-method-spec
+Editor:
+Daniel Hardman (Hyperledger Aries Project / Sovrin Foundation / Evernym)
+Authors:
+Oskar Deventer (TNO)
+Christian Lundkvist (ConsenSys)
+Márton Csernai (KILT)
+Kyle Den Hartog (Mattr)
+Markus Sabadello (Danube Tech)
+Sam Curren (Sovrin Foundation / Decentralized Identity Foundation)
+Dan Gisolfi (IBM)
+Mike Varley (SecureKey)
+Sven Hammann (ETH Zurich)
+John Jordan (Province of British Columbia)
+Lovesh Harchandani (Evernym)
+Devin Fisher (Evernym)
+Tobias Looker (Mattr)
+Brent Zundel (Evernym)
+Stephen Curran (Cloud Compass Computing Inc.)
+Denis Rybas (DSR)
+Alexander Shcherbakov (DSR)
+Participate:
+GitHub decentralized-identity/peer-did-method-spec
+File a bug
+Commit history
+Pull requests
+Copyright © 2023 W3C® (MIT, ERCIM, Keio, Beihang). W3C liability, trademark and permissive document license rules apply.
+
+Abstract
+This document defines a "peer" DID Method that conforms to the DID Spec. The method can be used independent of any central source of truth, and is intended to be cheap, fast, scalable, and secure. It is suitable for most private relationships between people, organizations, and things. We expect that peer-to-peer relationships in every blockchain ecosystem can benefit by offloading pairwise and n-wise relationships to peer DIDs.
+
+There are reasonable, tested did:peer libraries for python and java. It is convenient to use with DIDComm v2.
+
+Status of This Document
+This document is merely a W3C-internal document. It has no official standing of any kind and does not represent consensus of the W3C Membership.
+
+ 
+
+table of contents
+1.Introduction
+1.1Overview
+1.2Benefits
+2.Core Characteristics
+2.1Method Name
+2.2Target System(s)
+2.3Method Specific Identifier
+2.4Generation Method
+2.5Recognizing and handling peer DIDs
+2.6CRUD Operations
+A.Security Considerations
+A.1Guarantees
+A.2Enforcement
+A.3Secure communication
+A.4Proof of Control
+A.5Entropy
+A.6Key Management
+A.7Handling the trust-on-first-use (TOFU) problem
+A.8Verification Using a Trusted Third Party Channel
+A.9Using Verifiable Credentials
+B.Privacy Considerations
+B.1Fingerprinting
+C.Comparison to Other DID Methods
+C.1Ledger-oriented Methods
+C.2did:key
+D.Resources
+E.References
+E.1Normative references
+1. Introduction
+1.1 Overview
+This section is non-normative.
+
+Most documentation about decentralized identifiers (DIDs) describes them as identifiers that are rooted in a public source of truth like a blockchain, a database, a distributed filesystem, or similar. This publicness lets arbitrary parties resolve the DIDs to an endpoint and keys. It is an important feature for many use cases.
+
+However, the vast majority of relationships between people, organizations, and things have simpler requirements. When Alice(Corp|Device) and Bob want to interact, there are exactly and only 2 parties in the world who should care: Alice and Bob. Instead of arbitrary parties needing to resolve their DIDs, only Alice and Bob do. Peer DIDs are perfect in these cases. In many ways, peer DIDs are to public, blockchain-based DIDs what Ethereum Plasma or state channels are to on-chain smart contracts— or what Bitcoin's Lightning Network is to on-chain cryptopayments. They move the bulk of interactions off-chain, but offer options to connect back to a chain-based ecosystem as needed. Peer DIDs create the conditions for people, organizations and things to have full control of their end of the digital relationships they sustain.
+
+Some formal terminology may make the application of this insight to DIDs clearer:
+
+Anywise DID
+A DID intended for use with an unknowable number of parties (e.g., the global public or some subset thereof).
+Pairwise DID
+A DID intended to be known by its subject and exactly one other party (e.g., one usable in the Alice and Bob example just above).
+N-wise DID
+A DID intended to be known by exactly N enumerated parties including its subject. A business partnership with 3 members might be a modeled with n-wise DIDs. Pairwise DIDs are just a special case of an N-wise DID (N = 2). For more on n-wise DIDs, see Groups in the appendices.
+Generally, an anywise DID needs to be resolvable by strangers (i.e. publicly anchored DID). These strangers can use the DID to reference its subject (usually by resolving it on a public ledger) without establishing a relationship. On the other hand, pairwise and n-wise DIDs only need to be resolvable by the parties in the relationship, and each party in the relationship has to contribute a DID to make the relationship work. Because of the reciprocal nature of DID usage in enumerated relationships like this, we call the parties "peers", and it is this dynamic that gives our DID method its name.
+
+1.2 Benefits
+This section is non-normative.
+
+Peer DIDs are not suitable for anywise use cases, which are usually public by intent. However, peer DIDs have certain virtues that make them desirable for private relationships between a small number of enumerable parties:
+
+They have no transaction costs, making them essentially free to create, store, and maintain.
+They scale and perform entirely as a function of participants, not with any central system's capacity.
+Because they are not persisted in any central system, there is no trove to protect.
+Because only the parties to a given relationship know them, concerns about personal data and privacy regulations due to third-party data controllers or processors are much reduced.
+Because they are not beholden to any particular blockchain, they have minimal political or technical baggage.
+Because they avoid a dependence on a central source of truth, peer DIDs free themselves of the often-online requirement that typifies most other DID methods, and are thus well suited to use cases that need a decentralized peer-oriented architecture. Peer DIDs can be created and maintained for an entire lifecycle without any reliance on the internet, with no degradation of trust. They thus align closely with the ethos and the architectural mindset of the local-first and offline-first software movements.
+For more on when peer DIDs do and do not make sense, see Comparison to Other DID Methods in the Appendices.
+
+2. Core Characteristics
+2.1 Method Name
+The method name that identifies this DID method SHALL be: peer
+
+A DID that uses this method MUST begin with the following prefix: did:peer:. Per the DID specification, this string MUST be in lowercase. The remainder of the DID, after the prefix, is the method specific identifier (MSI) described below.
+
+2.2 Target System(s)
+This DID method applies to any identity management implementation that meets the following requirement:
+
+Generation Algorithm — The DIDs are created using the algorithm described below, endowing them with properties vital to trust between peers without incurring a dependency on a central source of truth.
+2.3 Method Specific Identifier
+The peer DID scheme is defined by the following ABNF (see [RFC5234] for syntax):
+
+EXAMPLE 1: ABNF for peer DIDs
+peer-did = "did:peer:" numalgo transform encnumbasis
+numalgo = "0" / "1" / "2"
+transform = "z"
+encnumbasis = 46*BASE58BTC
+Peer DIDs use an underlying number with high entropy, called the numeric basis, as the source of their uniqueness. There are two methods for generating this number, as described in the next section of this spec. These methods are represented in the DID value with numalgo == 0 or numalgo == 1.
+
+To build the full MSI, the raw bytes of the numeric basis are prefixed with a multicodec descriptor that makes those bytes self-describing. This descriptor plus the raw bytes are then transformed to text in the manner associated with transform. This yields encnumbasis in the ABNF.
+
+composition of a peer DID value
+Figure 1 Composition of a peer DID value
+In this version of the spec, the multicodec descriptor for numalgo == 0 is dependent on key type and exactly matches the descriptor that would be used for the same value in did:key. The multicodec descriptor for numalgo == 1 is byte pair 0x12 0x20, which says that what follows is a SHA2-256 hash, 32 bytes long. (The size is included because, although SHA-256 is known to produce 32-byte digests, other hash algorithms have variable-length output, and we could change the hash algorithm in a future version of the spec.) The transform is base58, represented by the multibase prefix z. BASE58BTC in the ABNF means the Bitcoin base58 character inventory; for brevity, we omit the expansion--but see the matching regex for details.
+
+The format of the DID value is intended to be future-proof, offering three expandable self-describing choices. Future versions of the spec may describe additional methods of generating the numeric basis; each new method should be associated with the next unused numalgo decimal digit when it is defined. Likewise, future versions of the spec may choose a different way to transform raw bytes to text, or a different format for the raw bytes of the numeric basis; these should be reflected in updated values of transform or of the multicodec descriptor at the front of the transformed bytes, respectively.
+
+NOTE
+Base58 is case-sensitive; in this version of the spec, peer DIDs MUST be compared with a case-sensitive algorithm and MUST NOT be normalized in case. The more general rule is that case sensitivity derives from transform, so routines that process multiple versions of peer DIDs MUST derive their case sensitivity rules from the corresponding properties of whatever transform a particular peer DID uses.
+
+2.4 Generation Method
+The unique numeric basis underlying a Peer DID MUST be generated in one of the following ways:
+
+Method 0: inception key without doc
+If numalgo == 0, a single keypair is chosen, having all possible privileges with respect to the DID. The public key value for this pair is the numeric basis of the DID. The genesis version of the DID doc is considered to be empty, granting all privileges to this key (and algorithmic derivations thereof, to provide key agreement versus signing and so forth). The DID doc offers no endpoint. This makes the DID functionally equivalent to a did:key value, and visually similar, except that a peer DID will have the numeric algorithm as a prefix, before the multibase encoded, multicodec-encoded public key. For example, did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH is equivalent to did:peer:0z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.
+
+Method 1: genesis doc
+Create a genesis version of JSON text of the DID doc for the DID. The genesis version MUST define a single key with the register privilege. This inception key is the key that creates the DID and authenticates when exchanging it with the first peer. It SHOULD also include enough state that subsequent evolutions to the doc are authorized; otherwise, the doc is static, suitable only for Layer 2 use. It MUST NOT include the DID itself (either the root id property or its value). This lets the doc be created without knowing the DID's value in advance. Suppressing the DID value creates a stored variant of peer DID doc data, as opposed to the resolved variant that would have an actual DID value in the root id property. (In either the stored or resolved variant of the doc, anywhere else that the DID value would appear, it should appear as a relative reference rather than an absolute value. For example, eachcontroller property of a verificationMethod that is owned by this DID would say "controller": "#id".)
+Calculate the SHA256 [RFC4634] hash of the bytes of the stored variant of the genesis version of the DID doc, and make this value the new DID's numeric basis.
+By hashing the stored variant, we avoid the circular problem of including the DID in the data that's being hashed. This means that a peer DID doc must be resolved by converting a stored variant of DID doc data into a resolved variant by inserting the value of the DID being resolved.
+
+The root of trust for peer DIDs is the entropy in the inception key. The inception key MUST be new for each DID; it MUST NOT ever be reused--and it must be the case that anyone observing the public half of the inception key cannot somehow derive or steal the private half. This guarantees that nobody other than the holder of the inception key could have created the genesis version of the DID doc. Because only the inception key has the privilege of sharing the DID doc with a peer, no other key holder can establish the relationship contrary to the intent of the inception key holder. This gives peer DIDs a self-certifying property that is vital to cybersecurity of all DIDs. Any DID method that does not guarantee the chain of custody of the DID between when it is created and when it is shared (e.g., written to a ledger or given to a peer) lacks this quality and is susceptible to attacks early in the DID's lifecycle. See this github issue for more discussion.
+
+Method 2: multiple inception key without doc
+If numalgo == 2, the generation mode is similar to Method 0 (and therefore also did:key) with the ability to specify additional keys in the generated DID Document. This method is necessary when both an encryption key and a signing key are required.
+
+EXAMPLE 2: ABNF for peer DIDs
+peer-did-method-2 = "did:peer:2" 1*element 
+element = "." ( purposecode transform encnumbasis / service )
+purposecode = "A" / "E" / "V" / "I" / "D" / "S" 
+keypurpose = 
+transform = "z"
+encnumbasis = 46*BASE58BTC
+service = 1*B64URL
+Start with the did prefix
+did:peer:2
+Construct a multibase encoded, multicodec-encoded form of each public key to be included.
+Prefix each encoded key with a period character (.) and single character from the purpose codes table below.
+Append the encoded key to the DID.
+Encode and append a service type to the end of the peer DID if desired as described below.
+Service encoding
+
+Start with the JSON structure for your service.
+Replace common strings in key names and type value with abbreviations from the abbreviations table below.
+Convert to string, and remove unnecessary whitespace, such as spaces and newlines.
+Base64URL Encode String (Padding MUST be removed as the "=" character is, per the DID Core Specification, not permitted in a DID)
+Prefix encoded service with a period character (.) and S
+Service decoding
+
+Remove the period (.) and S prefix
+Base64URL Decode String
+Parse as JSON.
+Replace abbreviations in key names and type value with common names from the abbreviations table below.
+Add id attribute according to the form
+#service
+Common String Abbreviations
+
+Common String	Abbreviation
+type	t
+DIDCommMessaging	dm
+serviceEndpoint	s
+routingKeys	r
+accept	a
+Purpose Code List
+
+A - Assertion
+E - Encryption (Key Agreement)
+V - Verification
+I - Capability Invocation
+D - Capability Delegation
+S - Service
+EXAMPLE 3: Example Multi-key Peer DID
+Encoded Encryption Key: .Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH
+Encoded Signing Key: .VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY
+Service Block:
+{
+	"type": "DIDCommMessaging",
+	"serviceEndpoint": "https://example.com/endpoint",
+	"routingKeys": ["did:example:somemediator#somekey"],
+          "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"]
+}
+Service Block, after whitespace removal and common word substitution:
+{"t":"dm","s":"https://example.com/endpoint","r":["did:example:somemediator#somekey"],"a":["didcomm/v2","didcomm/aip2;env=rfc587"]}
+Encoded Service Endpoint: .SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0
+Method 2 peer DID: did:peer:2.Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH.VzXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0
+When Resolving the peer DID into a DID Document, the process is reversed.
+
+Split the DID string into element.
+Extract element purpose and decode each key or service.
+Insert each key or service into the document according to the designated purpose.
+EXAMPLE 4: Example Multi-key Peer DID
+{
+   "@context": "https://w3id.org/did/v1",
+   "id": "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0",
+   "authentication": [
+       {
+           "id": "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+           "type": "Ed25519VerificationKey2020",
+           "controller": "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0",
+           "publicKeyMultibase": "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
+       },
+       {
+           "id": "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0#6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg",
+           "type": "Ed25519VerificationKey2020",
+           "controller": "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0",
+           "publicKeyMultibase": "z6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg"
+       }
+   ],
+   "keyAgreement": [
+       {
+           "id": "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0#6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
+           "type": "X25519KeyAgreementKey2020",
+           "controller": "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0",
+           "publicKeyMultibase": "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
+       }
+   ],
+   "service": [
+       {
+           "id": "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0#didcommmessaging-0",
+           "type": "DIDCommMessaging",
+           "serviceEndpoint": "https://example.com/endpoint",
+           "routingKeys": [
+               "did:example:somemediator#somekey"
+           ],
+           "accept": [
+                "didcomm/v2", "didcomm/aip2;env=rfc587"
+           ]
+       }
+   ]
+}
+Method 3: DID Shortening with SHA-256 Hash
+If numalgo == 3, the generation mode is similar to Method 2, but with a shorter DID identifier derived from a SHA-256 hash of the original identifier. The benefit of using Method 3 over Method to is the ability to have smaller size didcomm messages as did:peer2. dids tend to be verbose in nature. Method 3 peer dids can only be used after a peer did method 2 has been exchange with the other party and thus can map the shortened did to the longform one. In order to send a message encrypted with method 3 you first MUST send a discover-feature message (using the method 2 as the to field) to make sure that the receiving agent is capable of resolving method 3 dids.
+
+EXAMPLE 5: ABNF for peer DIDs
+peer-did-method-3 = "did:peer:3" transform encnumbasis
+transform = "z"
+encnumbasis = 46*BASE58BTC
+Start with the DID generated using Method 2.
+Take the SHA-256 hash of the generated DID (excluding the "did:peer:2" prefix).
+Encode the hash using the base58btc multibase encoding.
+Construct the final Method 3 DID by concatenating the prefix "did:peer:3" with the encoded hash.
+For example, if the Method 2 DID is:
+
+did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0
+First, remove the prefix "did:peer:2":
+
+.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0
+Take the SHA-256 hash of the remaining string and represent as a multi-hash, multi-base encoded(base58btc) string:
+
+zQmS19jtYDvGtKVrJhQnRFpBQAx3pJ9omx2HpNrcXFuRCz9
+Finally, concatenate the prefix "did:peer:3" with the computed and encoded hash:
+
+did:peer:zQmS19jtYDvGtKVrJhQnRFpBQAx3pJ9omx2HpNrcXFuRCz9
+2.5 Recognizing and handling peer DIDs
+This section is non-normative.
+
+EXAMPLE 6: A typical peer DID
+did:peer:1zQmZMygzYqNwU6Uhmewx5Xepf2VLp5S4HLSwwgf2aiKZuwa
+Peer DIDs consist entirely of printable ASCII characters and in this version of the spec are exactly 57 or 58 characters long. They have no whitespace, and the only punctuation they use is the : character. When rendering in columns with a constrained width, they could be hyphenated one or more times as needed; the hyphens would not be confused with meaningful delimiters, and the final character of the DID would be easy to find. They could also be rendered in a short form with the middle of the long base58 section elided, if it is not necessary to compare them with precision: did:peer:1z6Tx...WzJJq. The ellipsis should not obscure the prefix or the initial or final few characters of encnumbasis, to preserve enough info for casual distinction. This might be a useful rendering in log files, for example.
+
+A convenient regex to match peer DIDs is:
+
+EXAMPLE 7: Matching regex
+^did:peer:(([01](z)([1-9a-km-zA-HJ-NP-Z]{46,47}))|(2((\.[AEVID](z)([1-9a-km-zA-HJ-NP-Z]{46,47}))+(\.(S)[0-9a-zA-Z=]*)?)))$
+A match against this regex places numalgo (the algorithm for choosing a numeric basis) in capture group 1, transform in capture group 2, and encnumbasis in capture group 3.
+
+2.6 CRUD Operations
+peer DIDs implement the following CRUD (Create, Read, Update, and Delete) operations:
+
+Create: A peer DID is created by numalgo as defined in the Generation Methods section of this specification. Once created, the DIDs are shared by the party creating the DID with anyone they want to have and use the DID.
+Read: Those holding peer DIDs store them locally and "resolve" them by looking up their DIDDoc by the peer DID identifier string. In DIDComm, agents may index the DIDs by the keys within the DIDs and look up DIDs via their keys. As noted earlier, peer DIDs are not resolvable by anyone other than those that have received the DIDs.
+Update: peer DIDs cannot be updated. Implementations such as DIDComm use DID Rotation instead of updating the contents of the DIDDoc when necessasry.
+Delete: peer DIDs are deleted by those holding the DIDs. When a party is no longer interested in participating in the capabilities enabled by the sharing of the DIDs, they can simply delete their local copy, without without notifying other parties using the peer.
+A. Security Considerations
+This section is non-normative.
+
+A.1 Guarantees
+This section is non-normative.
+
+This spec uses a protocol, rather than a public oracle, as the root of trust. This protocol reliably communicates data about peer DIDs and peer DID docs; peers must persist that data into a local cache or database that functions as the Decentralized Identifier Registry for the method. The method is worthy of trust because it guarantees the following properties:
+
+DIDs are associated with exactly one inception key pair at the moment of creation.
+This prevents a category of man-in-the-middle attacks where an attacker could rotate a DID's keys at the outset of a relationship, unbeknownst to peers. It also prevents any party other than the holder of the inception key from using the DID in an unintended context.
+DIDs have an acceptable level of uniqueness.
+This is NOT a guarantee that DIDs will never be improperly reused by their owner, NOR is it a guarantee that collusion cannot subvert uniqueness. Thus, it is not a uniqueness upon which deep trust can be based. Rather, it is a guarantee that good behavior will not produce accidental collisions. In this sense, it is a bit like the uniqueness offered by NATing mechanisms in IPv4. It provides enough uniqueness that a DID can be used as an index in a database or as a routing target in DID communication. It also makes it possible for blockchains to graft a peer DID by mapping it into their namespace, without incurring the risk of ambiguity. Any time a peer DID is discovered to be less than unique, a true problem exists and systems can fairly raise an exception.
+The values of DIDs are securely random.
+This prevents attackers from discovering patterns in DIDs that might undermine privacy.
+A.2 Enforcement
+This section is non-normative.
+
+In centralized systems, security is enforced at the center. This is so obvious that we take it for granted—you can't access a database unless you log in first, and it's the database that enforces this.
+
+Despite their other decentralized features, blockchains are no different in this respect. If a blockchain accepts updates to a DID doc, then the blockchain must guarantee that those updates are only made by authorized parties. Thus, most DID methods imagine a blockchain parsing the authorization section of a DID doc, and rejecting mischief from hackers.
+
+However, in a peer relationship, there IS no centralized authority. This leads to an interesting inversion of responsibility that must be understood: Bob enforces Alice's authorization policy, and Alice enforces Bob's.
+
+This might seem wrong—shouldn't Alice enforce her own security? But it is quite rational. Who cares whether the agents he is dealing with truly belong to Alice and are authorized by her? Bob does. And if one of Alice's agents gets hacked and attempts to subvert the Alice:Bob relationship, who is the uncontaminated party that can refuse to cooperate with the rogue agent? Bob is.
+
+Another way to think about this is that, within the Alice:Bob relationship, Bob acts as a substitute for a centralized resource that Alice's agents try to access. In such a mental model, of course, Bob would be a logical place to enforce access rules for Alice.
+
+A.3 Secure communication
+All the messages in this protocol (except for a connection invitation that requires no security, by design) must be sent encrypted, using the encryption format specified in DIDComm's encryption envelope. This gives strong guarantees about the confidentiality and integrity of exchanged data, regardless of the transport mechanism used to transmit the messages.
+
+A.4 Proof of Control
+Because peer DIDs are generated from an algorithm that includes the values of their initial public key(s) as input, they cannot be created without the creator controlling them. As mentioned earlier, this prevents man-in-the-middle attacks at the time of creation. A man-in-the-middle attacker might still try to exchange the public key(s) in a DID Doc, while keeping the DID the same. If unnoticed, this would bind a DID generated by an honest party to the attacker's public key(s). To prevent this, the receiver of a freshly generated peer DID and DID Doc must verify that the DID was properly generated using the algorithm. This check is required when the received (DID, DID Doc) pair was not otherwise authenticated, which is the case for the exchange request during peer DID Exchange.
+
+A.5 Entropy
+Since keys must be created from keys generated by a secure random number generator, they are guaranteed to be unpredictable and globally unique at creation time.
+
+A.6 Key Management
+Keys used to control peer DIDs, or keys authorized to communicate and update the DID docs for peer DIDs, should be managed according to best practices for DKMS, as described in the DKMS spec.
+
+A.7 Handling the trust-on-first-use (TOFU) problem
+The trust-on-first-use is described in detail in its Wikipedia article. In brief, the TOFU problem occurs because it's not possible to verify on receipt of a public key, who is the owner of the corresponding private key. This lack of knowledge enables Man in the Middle (MITM) attacks, where an attempt to establish a connection between two participants is compromised by a third party. With peer:did, the interaction most vulnerable to MITM attacks is when an invitation is sent in plaintext to start the establishment of a connection. Recall that a plaintext invitation (a URL, a QR code, etc.) is needed when there is no way for two parties that want to connect to send an encrypted message. A relatively simple MITM attack using an intercepted invitation is for the MITM to respond to the invitation and establish a connection with the inviter, pretending to be the invitee. In a more sophisticated attack, the MITM sends a second, replacement MITM-generated invitation to the intended invitee, establishes a connection with that party, responds to the original invitation, and establishes a connection with the inviter. That second attack example could allow the MITM to remain between the two communicating parties, proxying messages between them, and intervening when it is advantageous. Since it is such a complex attack, it is viewed as extremely unlikely (arguably, impossible) to occur in practice.
+
+There are two common approaches to handling the TOFU problem with connections established using the peer DID method specification. One is to verify the connection using a trusted third party channel, and the second is through the use of verifiable credentials.
+
+Note that in many use cases, an entity might not care who responds to an invitation. In that case an "intercepted" invitation is OK, and might even be encouraged as a way to get more connections. For example a service where users only put in data for their own use (for example, a time tracking app) would not care who establishes a connection, just that the service has a reliable way to know whenever an entity returns to the service. In that case, neither verification method is necessary. It might only be when the user becomes a paying client that the service needs stronger credentials from whomever it is that is using the service.
+
+A.8 Verification Using a Trusted Third Party Channel
+Verifying that the established connection is with the intended party using a trusted third party channel is done by sending a request by some means other than the newly established connection, and having the response returned on (or about) the established connection. For example, after establishing the connection, the inviter might telephone the invitee and verbally confirm the public key the invitee is using for the connection. Of course, such an approach is neither user friendly, nor does it scale. The challenge is finding approaches that are reliable, easy and that scale. Another approach might be to email a message to the invitee and have them respond via the new connection with a phrase from the email. While that approach would detect the first example MITM attack (described above), it would not detect the second.
+
+The user experience can be improved as well using a randomart image generated from a public key while being able to detect both the first and second MITM attack examples. This image could be sent in numerous ways such as embedding it in a qr code, sending it over a email, or text message would also work.
+
+A.9 Using Verifiable Credentials
+The use of verifiable credentials is another way to verify a connection. With the connection in place, one party requests from the other a verifiable presentation of third party claims made about them. The requested claims should be sufficient to mitigate the risk for the transactions to be carried out using the connection, possibly including (but not just) the detection of a MITM attack. Note that such risk mitigation should be done by both connected parties. For example, a company might need to know some identity information about a new client, and the new client might want to be certain that the company is who they claim to be as attested to by an authorized entity.
+
+The presentation of verifiable claims is sufficient to handle the first example MITM attack—the presentation provides sufficient information about the other entity to continue the relationship. However, because in the second example, the MITM can proxy the presentation request and presentation between the parties, a verifiable presentation might not be sufficient to detect the second MITM example. In that case, we also want proof that the entity that delivered the presentation is the same entity that constructed the presentation. Since in the case of did:peer the delivery is by definition through a did:peer enabled connection, that extra proof involves linking the construction of the presentation to the connection through which it will be delivered.
+
+This extra proof can be achieved by having the entity constructing the presentation include a self-attested claim that is the did:peer public key of the prover. When the presentation is received, the verifier can compare the signed, self-attested claim with the one they are holding in the did:peer DIDDoc for the connection. If they do not match it is possible there has been a MITM attack and the connection is suspect.
+
+B. Privacy Considerations
+This section is non-normative.
+
+Peer DIDs should remain pairwise or n-wise, not be reused across relationships. This allows proper isolation to defeat correlation. It also enables granular exercise of sovereignty in a robust, multidimensional identity.
+
+many pairwise DIDs
+Figure 2 Alice maintains different pairwise DIDs for each relationship, and discloses different aspects and quantities about herself in each one.
+B.1 Fingerprinting
+The names of roles and the arrangement of rules in a peer DID doc could conceivably be used to create a sort of fingerprint of a sovereign domain, in much the same way that browser fingerprinting keys off individual uniqueness in combinations of browser+plugin+hardware configuration. To combat this problem, the following best practices are recommended:
+
+Choose rules from a standard inventory.
+Choose role names from a standard inventory.
+Only define keys that are relevant to a particular relationship.
+Never reuse ids for keys, rules, or service endpoints across DID docs.
+C. Comparison to Other DID Methods
+This section is non-normative.
+
+C.1 Ledger-oriented Methods
+We could certainly build peer relationships with anywise DIDs based on a public ledger or a similar source of truth. However, in the same way that a company doesn't want the public to resolve private host names inside its corporate intranet, letting others resolve pairwise and n-wise DIDs is unnecessary, and it represents a privacy and security risk as well as a problem of cost, scale, and performance. We strongly recommend that peer DIDs be used for peer relationships.
+
+In a similar vein, peer DIDs could be used, hypothetically, for anywise scenarios. The main disadvantage would be the lack of a formal publication mechanism. Nothing would prevent a user from publishing a peer DID and its associated DID document on a website. However, information published in this way would be hard to discover, maintain as DID docs evolved, and integrate into interoperable applications. DID methods that use a public ledger or a similar source of truth are a better choice here, because they have authoritative answers to the publication problem.
+
+C.2 did:key
+The did:key method encodes a public key directly as a DID value, and generates a very simple DID Doc in a deterministic way from that key. The only material that has to be generated or stored when using this method is the public key or DID itself; either can derive the other and the DID Doc. Using a did:key is very similar to sharing and then using a public SSH key.
+
+The benefit of the did:key method is its simplicity. Like peer DIDs, it has no dependence on an external source of truth, and can be implemented in code with little effort. Like peer DIDs, they are cheap to create and use.
+
+However, did:key are not direct equivalent of peer DIDs. Here are some features of peer DIDs that they do not provide:
+
+Include multiple keys in the DIDDoc, such as separate verification and key agreement keys.
+Define servicesin the DIDDoc, such as a DIDComm service endpoint for use in DID Communication.
+Use multiple agents with the DID--each of which has its own keys.
+Peer DIDs use a layering approach so the complexity of key rotation and updates need not be supported if only static, ephemeral use cases matter. This is the main complexity difference between peer DIDs and these other two methods, and is optional with peer DIDs. Peer DIDs also use multicodec to encode keys in the same way that did:key does. The hope is that these two methods will remain as similar as possible, and that Peer DIDs will be a logical upgrade choice when use cases go beyond those that did:key and did:nacl are designed to handle.
+
+D. Resources
+This section is non-normative.
+
+Developers maintaining this spec and its reference implementations are often found on the Aries channel of Hyperledger's Discord Server. You might also connect with them via the Hyperledger Aries mailing list, in Hyperledger working groups, in DIF and W3C meetings, or at the semi-annual Internet Identity Workshop or Rebooting Web of Trust conferences. They sometimes answer questions tagged with decentralized-identifiers, decentralized-identity, hyperledger-aries, or hyperledger-indy on stackoverflow.com.
+
+E. References
+E.1 Normative references
+[RFC4634]
+US Secure Hash Algorithms (SHA and HMAC-SHA). D. Eastlake 3rd; T. Hansen. IETF. July 2006. Informational. URL: https://www.rfc-editor.org/rfc/rfc4634
+[RFC5234]
+Augmented BNF for Syntax Specifications: ABNF. D. Crocker, Ed.; P. Overell. IETF. January 2008. Internet Standard. URL: https://www.rfc-editor.org/rfc/rfc5234
+↑
