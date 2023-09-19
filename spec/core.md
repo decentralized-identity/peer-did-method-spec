@@ -353,15 +353,15 @@ did:peer:4zQmNsz8npvrAyj983LTownQhp3PmGVGzMYrhBRGfig6rZ6P
 
 ###### Long form
 
-Resolving a long form `did:peer:4` document is done by decoding the document from the DID and &#34;contextualizing&#34; the document with the DID.
+Resolving a long form `did:peer:4` document is done by decoding the document from the DID and "contextualizing" the document with the DID.
 
 To decode the document:
 
 1. Extract the `encoded document` portion of the DID
-2. Verify the hash over the `encoded document` by extracting the `hash` portion of the DID and comparing it against the result of following step 2 (&#34;Hash the document&#34;) above to recreate the hash.
-3. Perform the inverse of step 1 (&#34;Encode the document&#34;) to get the decoded document
+2. Verify the hash over the `encoded document` by extracting the `hash` portion of the DID and comparing it against the result of following step 2 ("Hash the document") above to recreate the hash.
+3. Perform the inverse of step 1 ("Encode the document") to get the decoded document
 
-To &#34;contextualize&#34; a document:
+To "contextualize" a document:
 
 1. Take the decoded document (which should look identical to the input example above)
 2. Add `id` at the root of the document and set it to the DID
@@ -369,7 +369,7 @@ To &#34;contextualize&#34; a document:
 4. For each verification method (declared in the `verificationMethod` section or embedded in a verification relationship like `authentication`):
     - If `controller` is not set, set `controller` to the DID
 
-&gt; Note: Implementations may turn relative references in the document into absolute references by prepending the reference with the DID. This is not recommended due to length but this is an implementation detail that should not affect usage of the resolved document. Both relative and absolute references are valid within DID Documents.
+> Note: Implementations may turn relative references in the document into absolute references by prepending the reference with the DID. This is not recommended due to length but this is an implementation detail that should not affect usage of the resolved document. Both relative and absolute references are valid within DID Documents.
 
 Here is an example long form DID Document:
 
@@ -428,9 +428,9 @@ Here is an example long form DID Document:
 ```
 
 ###### Short form
-To resolve a short form `did:peer:4` DID, you must know the corresponding long form DID. It is not possible to resolve a short form `did:peer:4` without first seeing and storing it&#39;s long form counterpart.
+To resolve a short form `did:peer:4` DID, you must know the corresponding long form DID. It is not possible to resolve a short form `did:peer:4` without first seeing and storing it's long form counterpart.
 
-To resolve a short form DID, take the decoded document (which will look exactly like the input doc example above) and follow the same rules described in the [long form](#long-form) section to &#34;contextualize&#34; the document but using the short form DID instead of the long form DID.
+To resolve a short form DID, take the decoded document (which will look exactly like the input doc example above) and follow the same rules described in the [long form](#long-form) section to "contextualize" the document but using the short form DID instead of the long form DID.
 
 Here is an example short form DID Document:
 
