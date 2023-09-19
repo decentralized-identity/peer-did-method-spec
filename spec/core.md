@@ -258,7 +258,7 @@ did:peer:3zQmS19jtYDvGtKVrJhQnRFpBQAx3pJ9omx2HpNrcXFuRCz9
 ```
 #### Method 4: Short Form and Long Form
 
-DID Peer Numalgo 4 is a statically resolvable DID Method with a short form and a long form. The short form is the hash over the long form.
+DID Peer Numalgo 4 is a statically resolvable DID Method with a short form and a long form. The short form is the hash over the long form. The combined use of short and long forms allows for fully peer shared DID Documents, with efficient use of the short form after initial exchange.
 
 ##### Creating a DID
 
@@ -487,14 +487,6 @@ Here is an example short form DID Document:
   "id": "did:peer:4zQmNsz8npvrAyj983LTownQhp3PmGVGzMYrhBRGfig6rZ6P"
 }
 ```
-
-##### Size Stats
-
-- Plain (JSON without whitespace): 732 bytes
-- Long form DID: 1062 bytes
-- Short form DID: 57 bytes
-
-
 ##### Reference implementation
 
 https://github.com/dbluhm/did-peer-4
