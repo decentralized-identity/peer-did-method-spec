@@ -323,8 +323,8 @@ To encode this value into a `did:peer:4`:
 1. Encode the document:
     1. JSON stringify the object without whitespace
     2. Encode the string as utf-8 bytes
-    3. Prefix the bytes with the multicodec prefix for json ([varint](https://github.com/multiformats/unsigned-varint) `0x0200`)
-    4. Multibase encode the bytes as base58btc (base58 encode the value and prefix with a `z`)
+    3. Prefix the bytes with the [multicodec](https://github.com/multiformats/multicodec) prefix for json ([varint](https://github.com/multiformats/unsigned-varint) `0x0200`)
+    4. [Multibase](https://github.com/multiformats/multibase) encode the bytes as [base58btc](https://datatracker.ietf.org/doc/html/draft-msporny-base58-03) (base58 encode the value and prefix with a `z`)
     5. Consider this value the `encoded document`
 2. Hash the document:
     1. Take SHA2-256 digest of the encoded document (encode the bytes as utf-8)
@@ -353,7 +353,7 @@ did:peer:4zQmNsz8npvrAyj983LTownQhp3PmGVGzMYrhBRGfig6rZ6P
 
 ###### Long form
 
-Resolving a long form `did:peer:4` document is done by decoding the document from the DID and "contextualizing" the document with the DID.
+Resolving a long form `did:peer:4` document is done by decoding the document from the DID and "contextualizing" the restored Input Document with the DID.
 
 To decode the document:
 
@@ -430,7 +430,7 @@ Here is an example long form DID Document:
 ###### Short form
 To resolve a short form `did:peer:4` DID, you must know the corresponding long form DID. It is not possible to resolve a short form `did:peer:4` without first seeing and storing it's long form counterpart.
 
-To resolve a short form DID, take the decoded document (which will look exactly like the input doc example above) and follow the same rules described in the [long form](#long-form) section to "contextualize" the document but using the short form DID instead of the long form DID.
+To resolve a short form DID, retrieve the saved long form DID or decoded document (like the Input Document such as in the example above) and follow the same rules described in the [long form](#long-form) section to "contextualize" the document but using the short form DID instead of the long form DID.
 
 Here is an example short form DID Document:
 
