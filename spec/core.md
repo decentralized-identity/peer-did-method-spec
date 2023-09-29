@@ -309,11 +309,13 @@ For this tutorial, consider an Input Document like the following:
     {
       "id": "#didcommmessaging-0",
       "type": "DIDCommMessaging",
-      "serviceEndpoint": "didcomm://queue",
-      "accept": [
-        "didcomm/v2"
-      ],
-      "routingKeys": []
+      "serviceEndpoint": {
+        "uri" : "didcomm://queue",
+        "accept": [
+          "didcomm/v2"
+        ],
+        "routingKeys": []
+      }
     }
   ]
 }
@@ -413,11 +415,13 @@ Here is an example long form DID Document:
     {
       "id": "#didcommmessaging-0",
       "type": "DIDCommMessaging",
-      "serviceEndpoint": "didcomm://queue",
-      "accept": [
-        "didcomm/v2"
-      ],
-      "routingKeys": []
+      "serviceEndpoint": {
+        "uri" : "didcomm://queue",
+        "accept": [
+          "didcomm/v2"
+        ],
+        "routingKeys": []
+      }
     }
   ],
   "alsoKnownAs": [
@@ -474,11 +478,13 @@ Here is an example short form DID Document:
     {
       "id": "#didcommmessaging-0",
       "type": "DIDCommMessaging",
-      "serviceEndpoint": "didcomm://queue",
-      "accept": [
-        "didcomm/v2"
-      ],
-      "routingKeys": []
+      "serviceEndpoint": {
+        "uri" : "didcomm://queue",
+        "accept": [
+          "didcomm/v2"
+        ],
+        "routingKeys": []
+      }
     }
   ],
   "alsoKnownAs": [
