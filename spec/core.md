@@ -212,6 +212,12 @@ did:peer:2.Vz6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc.Ez6LSg8zQom395jKLrG
 
 ##### Resolving a `did:peer:2`
 
+::: note
+Below is the normative approach to resolving did:peer:2 DIDs. However, it is often the case that the resolved value is only used within a particular component. In this case, some of these rules may be relaxed. For instance, the verification material may be transformed into a JWK or other representation if the resolving component is more accustomed to working with those key representations. It is not strictly necessary to first represent the document as described here only to immediately transform it into the more familiar representation. Shortcuts like these are not problematic unless they impact the function of the DID Document.
+
+The `id` value of the Document, verification method, and service objects MUST be set as outlined below. These values are used to reference elements of the document and must be consistent across implementations regardless of shortcuts taken within the resolver.
+:::
+
 When Resolving the peer DID into a DID Document, the process is reversed:
 
 * Start with an empty document with the DID Core context (clarified):
@@ -235,18 +241,24 @@ When Resolving the peer DID into a DID Document, the process is reversed:
     * Remove the period (.) and the Purpose prefix. Consider the remaining string the "encoded key."
     * Create an empty object. Consider this value the "verification method."
     * Set the `type` of the verification method according to the multicodec prefix using the lookup table above (clarified).
-    * Set the `id` of the verification method to `#{encoded key}` (clarified); for example:
+    * Set the `id` of the verification method to `#key-N` where `N` is an incrementing number starting at `1` (clarified). The keys MUST be processed in the order they appear in the DID string. For example, if you have the DID (whitespace added for example only):
         ```
-        #z6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc
+        did:peer:2
+            .Vz6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc
+            .Ez6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR
+            .SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9kaWRjb21tIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0xIl19fQ
+            .SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9hbm90aGVyIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0yIl19fQ
         ```
+        The key with purpose code `V` and encoded key value `z6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc` will have the `id`: `#key-1`.
+        The key with purpose code `E` and encoded key value `z6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR` will have the `id`: `#key-2`.
     * Set the `controller` of the verification method to the value of the DID being resolved.
     * Set the `publicKeyMultibase` of the verification method to the value of the encoded key.
     * Append this object to `verificationMethod` of the document (clarified).
-    * Append a reference to the verification method to the appropriate verification relationship. The reference should be the exact value used in the `id` of the verification method (clarified). For example, if the purpose of the key was `V` and using the `id` from the example above:
+    * Append a reference to the verification method to the appropriate verification relationship, using the lookup table above. The reference should be the exact value used in the `id` of the verification method (clarified). For example, using the DID above and the key with purpose code `V`:
         ```
         {
           ... // Context and other elements previously added to the document
-          "authentication": [..., "#z6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc"]
+          "authentication": [..., "#key-1"]
         }
         ```
 * For each element with a purpose corresponding to a service, transform the service and add to the DID Document:
@@ -269,25 +281,25 @@ It is  not possible to express a verification method not controlled by the contr
 {
   "@context": "https://www.w3.org/ns/did/v1",
   "id": "did:peer:2.Vz6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc.Ez6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9kaWRjb21tIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0xIl19fQ.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9hbm90aGVyIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0yIl19fQ",
-  "authentication": [
-    "#z6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc"
-  ],
   "verificationMethod": [
     {
-      "id": "#z6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc",
+      "id": "#key-1",
       "controller": "did:peer:2.Vz6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc.Ez6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9kaWRjb21tIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0xIl19fQ.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9hbm90aGVyIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0yIl19fQ",
       "type": "Ed25519VerificationKey2020",
       "publicKeyMultibase": "z6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc"
     },
     {
-      "id": "#z6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR",
+      "id": "#key-2",
       "controller": "did:peer:2.Vz6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc.Ez6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9kaWRjb21tIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0xIl19fQ.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9hbm90aGVyIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0yIl19fQ",
       "type": "X25519KeyAgreementKey2020",
       "publicKeyMultibase": "z6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR"
     }
   ],
+  "authentication": [
+    "#key-1"
+  ],
   "keyAgreement": [
-    "#z6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR"
+    "#key-2"
   ],
   "service": [
     {
