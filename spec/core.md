@@ -69,7 +69,7 @@ The first iteration of this method left some elements of the encoding and decodi
 :::
 
 ::: example ABNF for peer DIDs
-``` json
+```
 peer-did-method-2 = "did:peer:2" 1*element 
 element = "." ( purposecode transform encnumbasis / service )
 purposecode = "A" / "E" / "V" / "I" / "D" / "S" 
