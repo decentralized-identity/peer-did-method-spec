@@ -223,7 +223,7 @@ When Resolving the peer DID into a DID Document, the process is reversed:
 * Start with an empty document with the DID Core context (clarified):
     ```json
     {
-        "context": ["https://www.w3.org/ns/did/v1"]
+        "@context": ["https://www.w3.org/ns/did/v1"]
     }
     ```
     * If any of the keys in the DID are ed25519, add the following context:
