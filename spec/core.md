@@ -84,7 +84,7 @@ service = 1*B64URL
 
 When generating a `did:peer:2`, take as inputs a set of keys and their purpose. Each key's purpose corresponds to the [Verification Relationship](https://www.w3.org/TR/did-core/#verification-relationships) it will hold in the DID Document generated from the DID.
 
-Abstractly, these inputs may look like the following:
+Abstractly, these inputs may look like the following (in this example, the keys are already multibase, multicodec encoded values):
 
 ```json
 [
@@ -99,9 +99,9 @@ Abstractly, these inputs may look like the following:
 ]
 ```
 
-To encode these keys:
+To encode the input keys:
 
-* Construct a multibase, multicodec form of each public key to be included.
+* Construct a [multibase](https://github.com/multiformats/multibase), [multicodec](https://github.com/multiformats/multicodec) form of each public key to be included.
 * Prefix each encoded key with a period character (.) and single character from the purpose codes table below.
 * Concatenate the prefixed encoded keys. The inputs above will result in:
     ```
@@ -203,13 +203,6 @@ did:peer:2.Vz6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc.Ez6LSg8zQom395jKLrG
 | **S**        | Service                       |
 
 
-###### Multicodec Prefix Name to Verification Method Type (clarified)
-
-| Multicodec Prefix Name             | Verification Method Type   |
-|------------------------------------|----------------------------|
-| ed25519-pub                        | Ed25519VerificationKey2020 |
-| x25519-pub                         | X25519KeyAgreementKey2020  |
-
 ##### Resolving a `did:peer:2`
 
 ::: note
@@ -223,24 +216,16 @@ When Resolving the peer DID into a DID Document, the process is reversed:
 * Start with an empty document with the DID Core context (clarified):
     ```json
     {
-        "@context": ["https://www.w3.org/ns/did/v1"]
+        "@context": ["https://www.w3.org/ns/did/v1", "https://w3id.org/security/multikey/v1"]
     }
     ```
-    * If any of the keys in the DID are ed25519, add the following context:
-        ```
-        https://w3id.org/security/suites/ed25519-2020/v1
-        ```
-    * If any of the keys in the DID are x25519, add the following context:
-        ```
-        https://w3id.org/security/suites/x25519-2020/v1
-        ```
 * Set the `id` of the document to the DID being resolved.
 * Optionally, set the `alsoKnownAs` to the `did:peer:3` value corresponding to the DID being resolved.
 * Split the DID string into elements.
 * For each element with a purpose corresponding to a key, transform keys into verification methods in the DID Document:
     * Remove the period (.) and the Purpose prefix. Consider the remaining string the "encoded key."
     * Create an empty object. Consider this value the "verification method."
-    * Set the `type` of the verification method according to the multicodec prefix using the lookup table above (clarified).
+    * Set the `type` of the verification method to [`Multikey`](https://www.w3.org/TR/vc-data-integrity/#multikey) (clarified).
     * Set the `id` of the verification method to `#key-N` where `N` is an incrementing number starting at `1` (clarified). The keys MUST be processed in the order they appear in the DID string. For example, if you have the DID (whitespace added for example only):
         ```
         did:peer:2
@@ -281,21 +266,20 @@ It is  not possible to express a verification method not controlled by the contr
 {
   "@context": [
     "https://www.w3.org/ns/did/v1",
-    "https://w3id.org/security/suites/ed25519-2020/v1",
-    "https://w3id.org/security/suites/x25519-2020/v1"
+    "https://w3id.org/security/multikey/v1",
   ],
   "id": "did:peer:2.Vz6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc.Ez6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9kaWRjb21tIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0xIl19fQ.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9hbm90aGVyIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0yIl19fQ",
   "verificationMethod": [
     {
       "id": "#key-1",
       "controller": "did:peer:2.Vz6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc.Ez6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9kaWRjb21tIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0xIl19fQ.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9hbm90aGVyIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0yIl19fQ",
-      "type": "Ed25519VerificationKey2020",
+      "type": "Multikey",
       "publicKeyMultibase": "z6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc"
     },
     {
       "id": "#key-2",
       "controller": "did:peer:2.Vz6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc.Ez6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9kaWRjb21tIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0xIl19fQ.SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9hbm90aGVyIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0yIl19fQ",
-      "type": "X25519KeyAgreementKey2020",
+      "type": "Multikey",
       "publicKeyMultibase": "z6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR"
     }
   ],
