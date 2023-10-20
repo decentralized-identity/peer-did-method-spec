@@ -234,8 +234,8 @@ When Resolving the peer DID into a DID Document, the process is reversed:
             .SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9kaWRjb21tIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0xIl19fQ
             .SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9hbm90aGVyIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0yIl19fQ
         ```
-        The key with purpose code `V` and encoded key value `z6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc` will have the `id`: `#key-1`.
-        The key with purpose code `E` and encoded key value `z6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR` will have the `id`: `#key-2`.
+        The key with purpose code `V` and encoded key value `z6Mkj3PUd1WjvaDhNZhhhXQdz5UnZXmS7ehtx8bsPpD47kKc` will have the `id` `#key-1`.
+        The key with purpose code `E` and encoded key value `z6LSg8zQom395jKLrGiBNruB9MM6V8PWuf2FpEy4uRFiqQBR` will have the `id` `#key-2`.
     * Set the `controller` of the verification method to the value of the DID being resolved.
     * Set the `publicKeyMultibase` of the verification method to the value of the encoded key.
     * Append this object to `verificationMethod` of the document (clarified).
@@ -316,7 +316,8 @@ It is  not possible to express a verification method not controlled by the contr
       },
       "id": "#service-1"
     }
-  ]
+  ],
+  "alsoKnownAs": ["did:peer:3zQmd6RdU6e2nDrLn1rjwdA5Buzq7wJwsv3WJ1AgrwKYJoLE"]
 }
 ```
 
