@@ -213,7 +213,7 @@ The `id` value of the Document, verification method, and service objects MUST be
 
 When Resolving the peer DID into a DID Document, the process is reversed:
 
-* Start with an empty document with the DID Core context (clarified):
+* Start with an empty document with the DID Core context and [Multikey context](https://www.w3.org/TR/vc-data-integrity/#multikey) (clarified):
     ```json
     {
         "@context": ["https://www.w3.org/ns/did/v1", "https://w3id.org/security/multikey/v1"]
