@@ -9,6 +9,8 @@
 **Editors:**
 
 - [Daniel Hardman](https://www.linkedin.com/in/danielhardman/), [Provenant, Inc](https://provenant.net), W3CID: 108790, [daniel.hardman@gmail.com](mailto:daniel.hardman@gmail.com)
+- [Stephen Curran](https://github.com/swcurran) - [Cloud Compass Computing Inc.](https://cloudcompass.ca)
+- [Sam Curren](https://github.com/TelegramSam) - [Indicio / Decentralized Identity Foundation](https://sovrin.org)
 
 **Authors**
 
@@ -17,7 +19,6 @@
 - [Márton Csernai](https://github.com/csmarc) - [KILT](https://kilt.io)
 - [Kyle Den Hartog](https://github.com/kdenhartog) - [Mattr](https://www.mattr.global)
 - [Markus Sabadello](https://www.linkedin.com/in/markus-sabadello-353a0821) - [Danube Tech](https://danubetech.com/)
-- [Sam Curren](https://github.com/TelegramSam) - [Sovrin Foundation / Decentralized Identity Foundation](https://sovrin.org)
 - [Dan Gisolfi](https://www.linkedin.com/in/vinomaster/) - [IBM](https://www.ibm.com)
 - [Mike Varley](https://github.com/mavarley) - [SecureKey](https://securekey.com)
 - [Sven Hammann](https://github.com/SvenHammann90) - [ETH Zurich](https://infsec.ethz.ch/)
