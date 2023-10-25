@@ -112,7 +112,7 @@ In addition to keys, `did:peer:2` can encode one or more [services](https://www.
 
 The service SHOULD follow the DID Core specification for services.
 
-For use with `did:peer:2`, service `id` attributes MUST be relative. The service MAY omit the `id`; however, this is NOT recommended (clarified).
+For use with `did:peer:2`, service `id` attributes MUST be relative. The service MAY omit the `id`; however, this is NOT RECOMMEDED (clarified).
 
 Consider the following service as input:
 
@@ -166,6 +166,7 @@ To encode a service:
     .SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9kaWRjb21tIiwiYWNjZXB0IjpbImRpZGNvbW0vdjIiXSwicm91dGluZ0tleXMiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0xIl19fQ
     .SeyJ0IjoiZG0iLCJzIjp7InVyaSI6Imh0dHA6Ly9leGFtcGxlLmNvbS9hbm90aGVyIiwiYSI6WyJkaWRjb21tL3YyIl0sInIiOlsiZGlkOmV4YW1wbGU6MTIzNDU2Nzg5YWJjZGVmZ2hpI2tleS0yIl19fQ
     ```
+    When encoding multiple services, they MUST be encoded individually and concatenated together. The services MUST NOT be encoded as a JSON list.
 
 Finally, to create the DID, concatenate the following values:
 
