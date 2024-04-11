@@ -149,6 +149,22 @@ To encode a service:
       }
     }
     ```
+
+::: warning
+Do not use the `dm` common string as the service type for DIDComm v1 `did:peer:2` DIDs.
+Instead, use the full DIDComm v1 service type, `did-communication`.
+:::
+
+> The `dm` common string is the service type for the DIDComm v2 DID service. It
+should **NOT** be used for a DIDComm v1 DID service. If you are defining a
+`did:peer:2` DID Doc to be used with [DIDComm v1], make sure you use a [DIDComm
+v1 service], and **DO NOT** use the `dm` common string, but rather use the
+proper DIDComm v1 service type of `did-communication`. There is no common string
+defined for `did-communication` so it **MUST** be spelled out in full.
+
+[DIDComm v1]: https://github.com/hyperledger/aries-rfcs/tree/main/concepts/0005-didcomm
+[DIDComm v1 service]: https://github.com/hyperledger/aries-rfcs/blob/main/features/0067-didcomm-diddoc-conventions/README.md#service-conventions
+
 * Convert to string, and remove unnecessary whitespace, such as spaces and newlines. For the above input, this will result in:
     ```
     {"t":"dm","s":{"uri":"http://example.com/didcomm","a":["didcomm/v2"],"r":["did:example:123456789abcdefghi#key-1"]}}
