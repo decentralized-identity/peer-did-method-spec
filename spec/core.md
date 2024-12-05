@@ -434,7 +434,7 @@ For this tutorial, consider an Input Document like the following:
       "id": "#didcommmessaging-0",
       "type": "DIDCommMessaging",
       "serviceEndpoint": {
-        "uri": "didcomm://queue",
+        "uri": "didcomm:transport/queue",
         "accept": ["didcomm/v2"],
         "routingKeys": [],
       }
