@@ -1,0 +1,27 @@
+{
+  "specs": [
+    {
+      "title": "Peer DID Method Specification",
+      "spec_directory": "./spec",
+      "output_path": "./docs",
+      "markdown_paths": [
+        "header.md",
+        "intro.md",
+        "core.md",
+        "security.md",
+        "privacy.md",
+        "comparison.md",
+        "resources.md",
+        "references.md"
+      ],
+      "logo": "https://raw.githubusercontent.com/decentralized-identity/peer-did-method-spec/master/openssi-logo.png",
+      "logo_link": "https://github.com/decentralized-identity/peer-did-method-spec",
+      "katex": true,
+      "source": {
+        "host": "github",
+        "account": "decentralized-identity",
+        "repo": "peer-did-method-spec"
+      }
+    }
+  ]
+}

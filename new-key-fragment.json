@@ -1,0 +1,10 @@
+{
+  "verificationMethod": [
+    {
+      "id": "Mv6gmMNa",
+      "type": "Ed25519VerificationKey2020",
+      "controller": "#id",
+      "publicKeyMultibase": "zMv6gmMNam3uVAjH3C2AVvLZZn6z3wXmqPVpfkcJCwDwn"
+    }
+  ]
+}
