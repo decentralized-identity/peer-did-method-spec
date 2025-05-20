@@ -27,7 +27,7 @@
   "homepage": "https://github.com/decentralized-identity/spec-up#readme",
   "dependencies": {
     "@traptitech/markdown-it-katex": "3.6.0",
-    "axios": "0.28.0",
+    "axios": "0.30.0",
     "find-pkg-dir": "2.0.0",
     "fs-extra": "8.1.0",
     "gulp": "5.0.0",
